@@ -167,8 +167,7 @@ def modulo_escenario_mixto():
         
         st.divider()
         utilidad_deseada = st.number_input("Utilidad Neta Objetivo ($)", min_value=0.0, value=30000.0)
-
-        # --- AQUÍ QUEDA EL EXPANDER, JUSTO DEBAJO DE LA UTILIDAD ---
+        
         with st.expander("📖 Guía de Cálculo Manual"):
             datos_manuales = {
                 "Concepto": ["PV Final", "Margen (MC)", "PE", "Ventas Meta"],
@@ -225,7 +224,10 @@ with st.sidebar:
         "Capital Contable", "Punto de Equilibrio", "Escenario Mixto"
     ])
     st.divider()
-    st.caption(f"Desarrollado por Heliu - UAN {datetime.now().year}")
+     st.caption("Este sistema procesa datos de manera local. Recuerde que la confidencialidad de su información financiera es un derecho protegido por la Ley Federal de Protección de Datos Personales.")
+    st.caption("Cálculos basados en estándares internacionales de contabilidad y modelos matemáticos de álgebra lineal.")
+    st.caption("Versión del Sistema: v1.0 - Desarrollado para la materia Contabilidad Empresarial.")
+
 
 # NAVEGACIÓN
 if opcion == "Balance General": modulo_balance()
