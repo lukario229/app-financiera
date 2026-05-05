@@ -49,11 +49,6 @@ st.markdown(f"""
         font-size: 12px;
         z-index: 100;
     }}
-
-    /* Ajuste para que la tabla se vea más compacta */
-    .stTable {{
-        font-size: 12px;
-    }}
     </style>
     <div class="watermark-bg">© Heliu - UAN 2026</div>
     """, unsafe_allow_html=True)
@@ -158,7 +153,7 @@ def modulo_pe():
 def modulo_escenario_mixto():
     st.header("🚀 SIMULADOR DE ESCENARIOS DINÁMICOS")
     
-    col_inp, col_res = st.columns([0.8, 2])
+    col_inp, col_res = st.columns([1, 1.5])
 
     with col_inp:
         st.subheader("⚙️ Parámetros")
@@ -173,8 +168,22 @@ def modulo_escenario_mixto():
         st.divider()
         utilidad_deseada = st.number_input("Utilidad Neta Objetivo ($)", min_value=0.0, value=30000.0)
 
+        # --- AQUÍ QUEDA EL EXPANDER, JUSTO DEBAJO DE LA UTILIDAD ---
+        with st.expander("📖 Guía de Cálculo Manual"):
+            datos_manuales = {
+                "Concepto": ["PV Final", "Margen (MC)", "PE", "Ventas Meta"],
+                "Fórmula": ["Base+Plus", "PV-CV", "Fijos/MC", "(Fijos+Meta)/MC"],
+                "Resultado": [
+                    f"**${pv_final}**",
+                    f"**${mc_calculado}**",
+                    f"**{cf_total/mc_calculado:.2f}**",
+                    f"**{(cf_total+utilidad_deseada)/mc_calculado:.2f}**"
+                ]
+            }
+            st.table(datos_manuales)
+
     with col_res:
-        st.subheader("📊 Resultados y Análisis")
+        st.subheader("📊 Resultados Proyectados")
         m1, m2, m3 = st.columns(3)
         m1.metric("PV Final", f"${pv_final:,.2f}")
         m2.metric("Margen (MC)", f"${mc_calculado:,.2f}")
@@ -184,48 +193,23 @@ def modulo_escenario_mixto():
             m3.metric("P.E. (Clientes)", f"{int(pe_q + 1)}")
             
             clientes_necesarios = (cf_total + utilidad_deseada) / mc_calculado
-            st.success(f"### 🎯 Objetivo para Meta: {int(clientes_necesarios + 1)} Clientes")
+            st.success(f"### 🎯 Objetivo: {int(clientes_necesarios + 1)} Clientes")
             
             st.divider()
+            clientes_reales = st.slider("Simular Volumen de Ventas (Clientes)", 0, int(clientes_necesarios * 1.5), int(pe_q + 5))
+            utilidad_proyectada = (clientes_reales * mc_calculado) - cf_total
             
-            # --- DIVISIÓN INTERNA: GUÍA ---
-            col_guia, col_graf = st.columns([1.2, 1.8])
-            
-            with col_guia:
-                st.markdown("##### 📖 Guía de Cálculo Manual")
-                datos_manuales = {
-                    "Concepto": ["PV Final", "Margen (MC)", "P. Equilibrio", "Meta Ventas"],
-                    "Operación Real": [
-                        f"{pv_base} + {extra_premium}",
-                        f"{pv_final} - {cv_u}",
-                        f"{cf_total} / {mc_calculado}",
-                        f"({cf_total} + {utilidad_deseada}) / {mc_calculado}"
-                    ],
-                    "Resultado": [
-                        f"**${pv_final}**",
-                        f"**${mc_calculado}**",
-                        f"**{pe_q:.2f}**",
-                        f"**{clientes_necesarios:.2f}**"
-                    ]
-                }
-                st.table(datos_manuales)
-                st.caption("💡 Redondea siempre al entero superior en PE y Meta.")
+            st.metric("Utilidad Proyectada", f"${utilidad_proyectada:,.2f}", 
+                      delta=f"{utilidad_proyectada - utilidad_deseada:,.2f} vs Meta")
 
-            with col_graf:
-                clientes_reales = st.slider("Simular Volumen (Clientes)", 0, int(clientes_necesarios * 1.5), int(pe_q + 5))
-                utilidad_proyectada = (clientes_reales * mc_calculado) - cf_total
-                
-                st.metric("Utilidad Proyectada", f"${utilidad_proyectada:,.2f}", 
-                          delta=f"{utilidad_proyectada - utilidad_deseada:,.2f} vs Meta")
-
-                x_vals = list(range(0, int(clientes_necesarios * 1.3)))
-                y_vals = [(x * mc_calculado) - cf_total for x in x_vals]
-                fig = px.area(x=x_vals, y=y_vals, labels={'x': 'Clientes', 'y': 'Utilidad ($)'}, title="Curva de Rentabilidad")
-                fig.add_hline(y=0, line_dash="dash", line_color="red")
-                fig.add_hline(y=utilidad_deseada, line_dash="dot", line_color="green")
-                fig.update_layout(template="plotly_dark", height=300, margin=dict(l=20, r=20, t=40, b=20),
-                                  paper_bgcolor='rgba(0,0,0,0)', plot_bgcolor='rgba(0,0,0,0)')
-                st.plotly_chart(fig, use_container_width=True)
+            # Gráfico de Rentabilidad
+            x_vals = list(range(0, int(clientes_necesarios * 1.3)))
+            y_vals = [(x * mc_calculado) - cf_total for x in x_vals]
+            fig = px.area(x=x_vals, y=y_vals, labels={'x': 'Clientes', 'y': 'Utilidad ($)'}, title="Curva de Rentabilidad")
+            fig.add_hline(y=0, line_dash="dash", line_color="red")
+            fig.add_hline(y=utilidad_deseada, line_dash="dot", line_color="green")
+            fig.update_layout(template="plotly_dark", paper_bgcolor='rgba(0,0,0,0)', plot_bgcolor='rgba(0,0,0,0)')
+            st.plotly_chart(fig, use_container_width=True)
         else:
             st.error("⚠️ El Costo Variable supera al Precio. Revisa tus números.")
 
