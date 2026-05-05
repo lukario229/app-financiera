@@ -42,12 +42,13 @@ st.markdown(f"""
         left: 0;
         bottom: 0;
         width: 100%;
-        background-color: rgba(17, 24, 39, 0.9);
+        background-color: rgba(17, 24, 39, 0.95);
         color: #ffffff;
         text-align: center;
-        padding: 10px;
-        font-size: 12px;
+        padding: 15px;
+        font-size: 11px;
         z-index: 100;
+        border-top: 1px solid #333;
     }}
     </style>
     <div class="watermark-bg">© Heliu - UAN 2026</div>
@@ -167,7 +168,8 @@ def modulo_escenario_mixto():
         
         st.divider()
         utilidad_deseada = st.number_input("Utilidad Neta Objetivo ($)", min_value=0.0, value=30000.0)
-        
+
+        # Guía manual debajo del objetivo
         with st.expander("📖 Guía de Cálculo Manual"):
             datos_manuales = {
                 "Concepto": ["PV Final", "Margen (MC)", "PE", "Ventas Meta"],
@@ -201,10 +203,9 @@ def modulo_escenario_mixto():
             st.metric("Utilidad Proyectada", f"${utilidad_proyectada:,.2f}", 
                       delta=f"{utilidad_proyectada - utilidad_deseada:,.2f} vs Meta")
 
-            # Gráfico de Rentabilidad
-            x_vals = list(range(0, int(clientes_necesarios * 1.3)))
-            y_vals = [(x * mc_calculado) - cf_total for x in x_vals]
-            fig = px.area(x=x_vals, y=y_vals, labels={'x': 'Clientes', 'y': 'Utilidad ($)'}, title="Curva de Rentabilidad")
+            fig = px.area(x=list(range(0, int(clientes_necesarios * 1.3))), 
+                          y=[(x * mc_calculado) - cf_total for x in range(0, int(clientes_necesarios * 1.3))], 
+                          labels={'x': 'Clientes', 'y': 'Utilidad ($)'}, title="Curva de Rentabilidad")
             fig.add_hline(y=0, line_dash="dash", line_color="red")
             fig.add_hline(y=utilidad_deseada, line_dash="dot", line_color="green")
             fig.update_layout(template="plotly_dark", paper_bgcolor='rgba(0,0,0,0)', plot_bgcolor='rgba(0,0,0,0)')
@@ -224,10 +225,9 @@ with st.sidebar:
         "Capital Contable", "Punto de Equilibrio", "Escenario Mixto"
     ])
     st.divider()
-     st.caption("Este sistema procesa datos de manera local. Recuerde que la confidencialidad de su información financiera es un derecho protegido por la Ley Federal de Protección de Datos Personales.")
+    st.caption("Este sistema procesa datos de manera local. Recuerde que la confidencialidad de su información financiera es un derecho protegido por la Ley Federal de Protección de Datos Personales.")
     st.caption("Cálculos basados en estándares internacionales de contabilidad y modelos matemáticos de álgebra lineal.")
     st.caption("Versión del Sistema: v1.0 - Desarrollado para la materia Contabilidad Empresarial.")
-
 
 # NAVEGACIÓN
 if opcion == "Balance General": modulo_balance()
@@ -237,9 +237,9 @@ elif opcion == "Capital Contable": modulo_capital()
 elif opcion == "Punto de Equilibrio": modulo_pe()
 elif opcion == "Escenario Mixto": modulo_escenario_mixto()
 
-# Pie de página
 st.markdown(f"""
     <div class="footer">
-        © {datetime.now().year} | <b>Heliu Gahel Ciañez</b> | UAN - Tecnología de la Información
+        <b>© {datetime.now().year} | Heliu Gahel Ciañez | Universidad Autónoma de Nayarit</b><br>
+        <i>Tecnologías de la Información - Área de Contabilidad Empresarial</i>
     </div>
     """, unsafe_allow_html=True)
