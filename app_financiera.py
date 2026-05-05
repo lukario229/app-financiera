@@ -9,33 +9,22 @@ st.set_page_config(page_title="Analizador Financiero - UAN", page_icon="📊", l
 # --- ESTILOS PERSONALIZADOS (CSS) ---
 st.markdown(f"""
     <style>
-    /* 1. CUADRO DE MÉTRICA EN NEGRO Y TEXTO BLANCO */
     [data-testid="stMetric"] {{
-        background-color: #000000 !important;
+        background-color: #0e1117 !important;
         padding: 20px;
         border-radius: 10px;
         border: 1px solid #333333;
-        box-shadow: 0 4px 6px rgba(0,0,0,0.3);
     }}
     
     [data-testid="stMetricValue"], [data-testid="stMetricLabel"] {{
         color: #ffffff !important;
     }}
 
-    /* 2. CUADRO DE OPINIÓN TRANSPARENTE */
     .stAlert {{
         background-color: transparent !important;
         border: none !important;
-        padding: 0px !important;
-    }}
-    
-    .stAlert p {{
-        color: #ffffff !important; 
-        font-size: 1.1rem;
-        font-weight: 500;
     }}
 
-    /* Estilo general y marca de agua */
     .watermark-bg {{
         position: fixed;
         top: 50%;
@@ -53,7 +42,7 @@ st.markdown(f"""
         left: 0;
         bottom: 0;
         width: 100%;
-        background-color: rgba(17, 24, 39, 0.8);
+        background-color: rgba(17, 24, 39, 0.9);
         color: #ffffff;
         text-align: center;
         padding: 10px;
@@ -78,14 +67,13 @@ def generar_opinion(valor, tipo):
         return "🟡 **Retorno Moderado:** Se sugiere optimizar la inversión patrimonial."
 
 def mostrar_cabecera():
-    # Columnas para alinear logo y título a la izquierda
     col_logo, col_titulo = st.columns([1, 6])
     with col_titulo:
         st.title("🛡️ SISTEMA DE INTELIGENCIA FINANCIERA")
-        st.subheader("Bienvenido, esta página ha sido creada para ayudar a empresarios como usted.")
-        st.caption("Proyecto de Tecnología de la Información e Innovación Digital - Universidad Autónoma de Nayarit")
+        st.subheader("Análisis Estratégico para la Toma de Decisiones")
+        st.caption("Proyecto de Innovación Digital - Universidad Autónoma de Nayarit")
 
-# --- MÓDULOS DEL PROGRAMA ---
+# --- MÓDULOS DE ANÁLISIS ---
 
 def modulo_balance():
     st.header("⚖️ Balance General")
@@ -113,7 +101,7 @@ def modulo_resultados():
             st.metric("Margen Neto", f"{margen:.2f}%")
             st.info(generar_opinion(margen, "margen"))
     with col2:
-        fig = px.pie(names=['Utilidad', 'Costos'], values=[utilidad, ingresos-utilidad], hole=0.4)
+        fig = px.pie(names=['Utilidad', 'Costos'], values=[utilidad, max(0, ingresos-utilidad)], hole=0.4)
         fig.update_layout(template="plotly_dark", paper_bgcolor='rgba(0,0,0,0)')
         st.plotly_chart(fig, use_container_width=True)
 
@@ -125,19 +113,14 @@ def modulo_flujos():
         capex = st.number_input("Inversión (CAPEX) ($)", value=1200.0)
         fcf = f_operativo - capex
         st.metric("Flujo Libre de Efectivo", f"${fcf:,.2f}")
-        if fcf > 0: st.markdown("✅ **Excedente de efectivo detectado.**")
-        else: st.markdown("⚠️ **Consumo de efectivo superior a la generación.**")
     with col2:
         fig = go.Figure(go.Waterfall(
             name = "Flujo", orientation = "v",
             measure = ["relative", "relative", "total"],
-            x = ["Op. Entradas", "Inversión (Salida)", "Flujo Libre"],
-            textposition = "outside",
-            text = [f"+{f_operativo}", f"-{capex}", f"{fcf}"],
+            x = ["Op. Entradas", "Inversión", "Flujo Libre"],
             y = [f_operativo, -capex, 0],
-            connector = {"line":{"color":"rgb(63, 63, 63)"}},
         ))
-        fig.update_layout(title="Análisis de Movimiento de Efectivo", template="plotly_dark", paper_bgcolor='rgba(0,0,0,0)', plot_bgcolor='rgba(0,0,0,0)')
+        fig.update_layout(template="plotly_dark", paper_bgcolor='rgba(0,0,0,0)')
         st.plotly_chart(fig, use_container_width=True)
 
 def modulo_capital():
@@ -150,13 +133,13 @@ def modulo_capital():
         st.metric("ROE", f"{roe:.2f}%")
         st.info(generar_opinion(roe, "roe"))
     with col2:
-        fig = go.Figure(go.Indicator(mode="gauge+number", value=roe, title={'text': "Retorno sobre Capital %"}))
+        fig = go.Figure(go.Indicator(mode="gauge+number", value=roe, gauge={'axis': {'range': [None, 40]}}))
         fig.update_layout(template="plotly_dark", paper_bgcolor='rgba(0,0,0,0)')
         st.plotly_chart(fig, use_container_width=True)
 
 def modulo_pe():
-    st.header("🎯 Punto de Equilibrio")
-    col1, col2 = st.columns([1, 1.5])
+    st.header("🎯 Punto de Equilibrio (Básico)")
+    col1, col2 = st.columns([1, 1])
     with col1:
         f = st.number_input("Costos Fijos ($)", min_value=0.0, value=2000.0)
         p = st.number_input("Precio ($)", min_value=0.1, value=100.0)
@@ -166,44 +149,82 @@ def modulo_pe():
             st.metric("Unidades para Equilibrio", f"{int(pe + 1)}")
         else:
             st.error("El precio debe ser mayor al costo variable.")
-            pe = 0
-    with col2:
-        if pe > 0:
-            unidades = list(range(0, int(pe * 2) + 10))
-            ingresos = [p * u for u in unidades]
-            costos = [f + (v * u) for u in unidades]
-            fig = go.Figure()
-            fig.add_trace(go.Scatter(x=unidades, y=ingresos, name="Ingresos Totales", line=dict(color='#00ff00', width=3)))
-            fig.add_trace(go.Scatter(x=unidades, y=costos, name="Costos Totales", line=dict(color='#ff4b4b', width=3)))
-            fig.add_trace(go.Scatter(x=[pe], y=[p*pe], mode='markers', name='Punto de Equilibrio', marker=dict(color='white', size=12, symbol='star')))
-            fig.update_layout(title="Gráfica de Punto de Equilibrio", template="plotly_dark", paper_bgcolor='rgba(0,0,0,0)', plot_bgcolor='rgba(0,0,0,0)')
+
+def modulo_escenario_mixto():
+    st.header("🚀 SIMULADOR DE ESCENARIOS DINÁMICOS")
+    st.markdown("Módulo flexible para proyectar resultados variando precios, plus de servicios y metas.")
+
+    col_inp, col_res = st.columns([1, 1.5])
+
+    with col_inp:
+        st.subheader("⚙️ Parámetros")
+        pv_base = st.number_input("Precio de Venta Base ($)", min_value=0.0, value=1300.0)
+        extra_premium = st.number_input("Ingreso Adicional / Plus ($)", min_value=0.0, value=70.0)
+        cv_u = st.number_input("Costo Variable Unitario ($)", min_value=0.0, value=200.0)
+        cf_total = st.number_input("Costos Fijos Totales ($)", min_value=0.0, value=15000.0)
+        
+        pv_final = pv_base + extra_premium
+        mc_calculado = pv_final - cv_u
+        
+        st.divider()
+        utilidad_deseada = st.number_input("Utilidad Neta Objetivo ($)", min_value=0.0, value=30000.0)
+
+    with col_res:
+        st.subheader("📊 Resultados")
+        m1, m2, m3 = st.columns(3)
+        m1.metric("PV Final", f"${pv_final:,.2f}")
+        m2.metric("Margen (MC)", f"${mc_calculado:,.2f}")
+        
+        if mc_calculado > 0:
+            pe_q = cf_total / mc_calculado
+            m3.metric("P.E. (Clientes)", f"{int(pe_q + 1)}")
+            
+            clientes_necesarios = (cf_total + utilidad_deseada) / mc_calculado
+            st.success(f"### 🎯 Objetivo: {int(clientes_necesarios + 1)} Clientes")
+            
+            st.divider()
+            clientes_reales = st.slider("Simular Volumen de Ventas (Clientes)", 0, int(clientes_necesarios * 1.5), int(pe_q + 5))
+            utilidad_proyectada = (clientes_reales * mc_calculado) - cf_total
+            
+            st.metric("Utilidad Proyectada", f"${utilidad_proyectada:,.2f}", 
+                      delta=f"{utilidad_proyectada - utilidad_deseada:,.2f} vs Meta")
+
+            # Gráfico de Rentabilidad
+            x_vals = list(range(0, int(clientes_necesarios * 1.3)))
+            y_vals = [(x * mc_calculado) - cf_total for x in x_vals]
+            fig = px.area(x=x_vals, y=y_vals, labels={'x': 'Clientes', 'y': 'Utilidad ($)'}, title="Curva de Rentabilidad")
+            fig.add_hline(y=0, line_dash="dash", line_color="red")
+            fig.add_hline(y=utilidad_deseada, line_dash="dot", line_color="green")
+            fig.update_layout(template="plotly_dark", paper_bgcolor='rgba(0,0,0,0)', plot_bgcolor='rgba(0,0,0,0)')
             st.plotly_chart(fig, use_container_width=True)
+        else:
+            st.error("⚠️ El Costo Variable supera al Precio. Revisa tus números.")
 
 # --- ESTRUCTURA PRINCIPAL ---
 mostrar_cabecera()
 st.divider()
 
 with st.sidebar:
-    # Logo también en el sidebar
-    st.image("https://uacbi.uan.mx/wp-content/uploads/2022/10/ESCUDO-UAN-Azul-1024x1024.png", width=250)
-    st.title("Menú Principal")
-    opcion = st.radio("Seleccione un Módulo:", ["Balance General", "Estado de Resultados", "Flujos de Efectivo", "Capital Contable", "Punto de Equilibrio"])
+    st.image("https://uacbi.uan.mx/wp-content/uploads/2022/10/ESCUDO-UAN-Azul-1024x1024.png", width=200)
+    st.title("Menú de Análisis")
+    opcion = st.radio("Seleccione un Módulo:", [
+        "Balance General", "Estado de Resultados", "Flujos de Efectivo", 
+        "Capital Contable", "Punto de Equilibrio", "Escenario Mixto"
+    ])
     st.divider()
-    st.markdown(" 📜 IMPORTANTE")
-    st.caption("Este sistema procesa datos de manera local. Recuerde que la confidencialidad de su información financiera es un derecho protegido por la Ley Federal de Protección de Datos Personales.")
-    st.caption("Cálculos basados en estándares internacionales de contabilidad y modelos matemáticos de álgebra lineal.")
-    st.caption("Versión del Sistema: v1.0 - Desarrollado para la materia Contabilidad Empresarial.")
+    st.caption(f"Desarrollado por Heliu - UAN {datetime.now().year}")
 
-# Renderizado
+# NAVEGACIÓN
 if opcion == "Balance General": modulo_balance()
 elif opcion == "Estado de Resultados": modulo_resultados()
 elif opcion == "Flujos de Efectivo": modulo_flujos()
 elif opcion == "Capital Contable": modulo_capital()
 elif opcion == "Punto de Equilibrio": modulo_pe()
+elif opcion == "Escenario Mixto": modulo_escenario_mixto()
 
 # Pie de página
 st.markdown(f"""
     <div class="footer">
-        © {datetime.now().year} Derechos Reservados - <b>Heliu</b> | UAN - Tecnología de la Información
+        © {datetime.now().year} | <b>Heliu Gahel Ciañez</b> | UAN - Tecnología de la Información
     </div>
     """, unsafe_allow_html=True)
