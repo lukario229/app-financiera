@@ -197,6 +197,33 @@ def modulo_escenario_mixto():
             fig.add_hline(y=utilidad_deseada, line_dash="dot", line_color="green")
             fig.update_layout(template="plotly_dark", paper_bgcolor='rgba(0,0,0,0)', plot_bgcolor='rgba(0,0,0,0)')
             st.plotly_chart(fig, use_container_width=True)
+
+            # --- GUÍA DE CÁLCULO MANUAL ---
+            with st.expander("📖 Guía de Aprendizaje: ¿Cómo se calcula esto manualmente?"):
+                st.markdown("### 📝 Fórmulas Aplicadas")
+                
+                datos_manuales = {
+                    "Concepto": [
+                        "1. Precio de Venta Final",
+                        "2. Margen de Contribución (MC)",
+                        "3. Punto de Equilibrio (PE)",
+                        "4. Ventas para Meta"
+                    ],
+                    "Fórmula Manual": [
+                        "Precio Base + Plus",
+                        "Precio Final - Costo Variable",
+                        "Costos Fijos / MC",
+                        "(Costos Fijos + Utilidad Deseada) / MC"
+                    ],
+                    "Operación Real con tus Datos": [
+                        f"{pv_base} + {extra_premium} = **${pv_final}**",
+                        f"{pv_final} - {cv_u} = **${mc_calculado}**",
+                        f"{cf_total} / {mc_calculado} = **{pe_q:.2f} clientes**",
+                        f"({cf_total} + {utilidad_deseada}) / {mc_calculado} = **{clientes_necesarios:.2f}**"
+                    ]
+                }
+                st.table(datos_manuales)
+                st.info("💡 **Dato clave:** En el cálculo de clientes siempre redondeamos al entero superior para asegurar la cobertura total de costos.")
         else:
             st.error("⚠️ El Costo Variable supera al Precio. Revisa tus números.")
 
