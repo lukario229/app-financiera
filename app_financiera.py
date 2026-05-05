@@ -9,6 +9,7 @@ st.set_page_config(page_title="Analizador Financiero - UAN", page_icon="📊", l
 # --- ESTILOS PERSONALIZADOS (CSS) ---
 st.markdown(f"""
     <style>
+    /* Estilo para las métricas */
     [data-testid="stMetric"] {{
         background-color: #0e1117 !important;
         padding: 20px;
@@ -20,11 +21,23 @@ st.markdown(f"""
         color: #ffffff !important;
     }}
 
-    .stAlert {{
-        background-color: transparent !important;
-        border: none !important;
+    /* Ajuste del Título Principal */
+    .main-title {{
+        font-size: 2.5rem;
+        font-weight: 800;
+        color: #ffffff;
+        margin-bottom: 0px;
+        line-height: 1.2;
+    }}
+    
+    .sub-title {{
+        font-size: 1.2rem;
+        color: #1a73e8;
+        font-weight: 500;
+        margin-bottom: 5px;
     }}
 
+    /* Marca de agua */
     .watermark-bg {{
         position: fixed;
         top: 50%;
@@ -37,17 +50,26 @@ st.markdown(f"""
         user-select: none;
     }}
     
+    /* Footer */
     .footer {{
         position: fixed;
         left: 0;
         bottom: 0;
         width: 100%;
-        background-color: rgba(17, 24, 39, 0.9);
+        background-color: rgba(17, 24, 39, 0.95);
         color: #ffffff;
         text-align: center;
-        padding: 10px;
-        font-size: 12px;
+        padding: 8px;
+        font-size: 11px;
         z-index: 100;
+        border-top: 1px solid #333;
+    }}
+
+    /* Texto del Marco Legal en Sidebar */
+    .legal-text {{
+        font-size: 10px;
+        color: #888;
+        line-height: 1.4;
     }}
     </style>
     <div class="watermark-bg">© Heliu - UAN 2026</div>
@@ -67,13 +89,14 @@ def generar_opinion(valor, tipo):
         return "🟡 **Retorno Moderado:** Se sugiere optimizar la inversión patrimonial."
 
 def mostrar_cabecera():
-    col_logo, col_titulo = st.columns([1, 6])
+    # Cabecera desacomodada corregida con columnas y estilos
+    col_logo, col_titulo = st.columns([1, 5])
     with col_titulo:
-        st.title("🛡️ SISTEMA DE INTELIGENCIA FINANCIERA")
-        st.subheader("Análisis Estratégico para la Toma de Decisiones")
-        st.caption("Proyecto de Innovación Digital - Universidad Autónoma de Nayarit")
+        st.markdown('<p class="main-title">🛡️ SISTEMA DE INTELIGENCIA FINANCIERA</p>', unsafe_allow_html=True)
+        st.markdown('<p class="sub-title">Análisis Estratégico para la Toma de Decisiones</p>', unsafe_allow_html=True)
+        st.caption("Proyecto de Innovación Digital | Universidad Autónoma de Nayarit | 2026")
 
-# --- MÓDULOS DE ANÁLISIS ---
+# --- MÓDULOS DE ANÁLISIS (Se mantienen igual para no afectar lógica) ---
 
 def modulo_balance():
     st.header("⚖️ Balance General")
@@ -152,8 +175,6 @@ def modulo_pe():
 
 def modulo_escenario_mixto():
     st.header("🚀 SIMULADOR DE ESCENARIOS DINÁMICOS")
-    st.markdown("Módulo flexible para proyectar resultados variando precios, plus de servicios y metas.")
-
     col_inp, col_res = st.columns([1, 1.5])
 
     with col_inp:
@@ -189,7 +210,6 @@ def modulo_escenario_mixto():
             st.metric("Utilidad Proyectada", f"${utilidad_proyectada:,.2f}", 
                       delta=f"{utilidad_proyectada - utilidad_deseada:,.2f} vs Meta")
 
-            # Gráfico de Rentabilidad
             x_vals = list(range(0, int(clientes_necesarios * 1.3)))
             y_vals = [(x * mc_calculado) - cf_total for x in x_vals]
             fig = px.area(x=x_vals, y=y_vals, labels={'x': 'Clientes', 'y': 'Utilidad ($)'}, title="Curva de Rentabilidad")
@@ -197,24 +217,29 @@ def modulo_escenario_mixto():
             fig.add_hline(y=utilidad_deseada, line_dash="dot", line_color="green")
             fig.update_layout(template="plotly_dark", paper_bgcolor='rgba(0,0,0,0)', plot_bgcolor='rgba(0,0,0,0)')
             st.plotly_chart(fig, use_container_width=True)
-        else:
-            st.error("⚠️ El Costo Variable supera al Precio. Revisa tus números.")
 
 # --- ESTRUCTURA PRINCIPAL ---
 mostrar_cabecera()
 st.divider()
 
 with st.sidebar:
-    st.image("https://uacbi.uan.mx/wp-content/uploads/2022/10/ESCUDO-UAN-Azul-1024x1024.png", width=200)
-    st.title("Menú de Análisis")
+    st.image("https://uacbi.uan.mx/wp-content/uploads/2022/10/ESCUDO-UAN-Azul-1024x1024.png", width=180)
+    st.title("📌 Menú de Navegación")
     opcion = st.radio("Seleccione un Módulo:", [
         "Balance General", "Estado de Resultados", "Flujos de Efectivo", 
         "Capital Contable", "Punto de Equilibrio", "Escenario Mixto"
     ])
-    st.divider()
-    st.caption(f"Desarrollado por Heliu - UAN {datetime.now().year}")
+    
+    st.sidebar.markdown("---")
+    st.sidebar.markdown("**v1.2.0 - Despliegue Oficial**")
+    st.sidebar.markdown("""
+    <div class="legal-text">
+        <b>Marco Jurídico y Normativo:</b><br>
+        Este software se rige bajo los lineamientos de la Ley General de Educación Superior y la normativa interna de la Universidad Autónoma de Nayarit. El uso de datos financieros simulados es con fines estrictamente académicos y de investigación técnica.
+    </div>
+    """, unsafe_allow_html=True)
 
-# NAVEGACIÓN
+# LÓGICA DE NAVEGACIÓN
 if opcion == "Balance General": modulo_balance()
 elif opcion == "Estado de Resultados": modulo_resultados()
 elif opcion == "Flujos de Efectivo": modulo_flujos()
@@ -225,6 +250,6 @@ elif opcion == "Escenario Mixto": modulo_escenario_mixto()
 # Pie de página
 st.markdown(f"""
     <div class="footer">
-        © {datetime.now().year} | <b>Heliu Gahel Ciañez</b> | UAN - Tecnología de la Información
+        © {datetime.now().year} | Sistema Desarrollado por <b>Heliu Gahel Ciañez</b> | Licenciatura en Contaduría - UAN
     </div>
     """, unsafe_allow_html=True)
