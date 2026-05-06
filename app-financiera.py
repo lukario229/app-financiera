@@ -68,7 +68,7 @@ def generar_opinion(valor, tipo):
         return "🟡 **Retorno Moderado:** Se sugiere optimizar la inversión patrimonial."
 
 def mostrar_cabecera():
-    col_logo, col_titulo = st.columns([1, 1])
+    col_logo, col_titulo = st.columns([1, 8])
     with col_titulo:
         st.title("🛡️ SISTEMA DE INTELIGENCIA FINANCIERA")
         st.subheader("Análisis Estratégico para la Toma de Decisiones")
