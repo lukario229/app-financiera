@@ -52,15 +52,15 @@ st.markdown(f"""
 # --- FUNCIONES DE SOPORTE ---
 def generar_opinion(valor, tipo):
     if tipo == "liquidez":
-        if valor >= 1.5: return "🟢 **Situación Óptima:** Solvencia garantizada."[cite: 1]
-        if valor >= 1.0: return "🟡 **Riesgo Moderado:** Vigilancia requerida."[cite: 1]
-        return "🔴 **Alerta Crítica:** Insuficiencia de fondos inmediata."[cite: 1]
+        if valor >= 1.5: return "🟢 **Situación Óptima:** Solvencia garantizada."
+        if valor >= 1.0: return "🟡 **Riesgo Moderado:** Vigilancia requerida."
+        return "🔴 **Alerta Crítica:** Insuficiencia de fondos inmediata."
     if tipo == "margen":
-        if valor >= 20: return "🟢 **Alta Rentabilidad:** Generación eficiente de valor."[cite: 1]
-        return "🔴 **Rentabilidad Baja:** Revisar estructura de costos."[cite: 1]
+        if valor >= 20: return "🟢 **Alta Rentabilidad:** Generación eficiente de valor."
+        return "🔴 **Rentabilidad Baja:** Revisar estructura de costos."
     if tipo == "roe":
-        if valor >= 15: return "🟢 **Excelente Retorno:** Gran eficiencia en el uso del capital."[cite: 1]
-        return "🟡 **Retorno Moderado:** Se sugiere optimizar la inversión patrimonial."[cite: 1]
+        if valor >= 15: return "🟢 **Excelente Retorno:** Gran eficiencia en el uso del capital."
+        return "🟡 **Retorno Moderado:** Se sugiere optimizar la inversión patrimonial."
 
 def mostrar_cabecera():
     col_logo, col_titulo = st.columns([1, 6])
@@ -78,7 +78,7 @@ def modulo_balance():
         activo = st.number_input("Activo Circulante ($)", min_value=0.0, value=1500.0)
         pasivo = st.number_input("Pasivo Circulante ($)", min_value=0.0, value=1000.0)
         if pasivo > 0:
-            liq = activo / pasivo[cite: 1]
+            liq = activo / pasivo
             st.metric("Razón de Liquidez", f"{liq:.2f}")
             st.info(generar_opinion(liq, "liquidez"))
     with col2:
@@ -93,7 +93,7 @@ def modulo_resultados():
         ingresos = st.number_input("Ingresos Totales ($)", min_value=0.0, value=5000.0)
         utilidad = st.number_input("Utilidad Neta ($)", min_value=0.0, value=1000.0)
         if ingresos > 0:
-            margen = (utilidad / ingresos) * 100[cite: 1]
+            margen = (utilidad / ingresos) * 100
             st.metric("Margen Neto", f"{margen:.2f}%")
             st.info(generar_opinion(margen, "margen"))
     with col2:
@@ -107,7 +107,7 @@ def modulo_flujos():
     with col1:
         f_operativo = st.number_input("Flujo Actividades Operación ($)", value=3000.0)
         capex = st.number_input("Inversión (CAPEX) ($)", value=1200.0)
-        fcf = f_operativo - capex[cite: 1]
+        fcf = f_operativo - capex
         st.metric("Flujo Libre de Efectivo", f"${fcf:,.2f}")
     with col2:
         fig = go.Figure(go.Waterfall(
@@ -125,7 +125,7 @@ def modulo_capital():
     with col1:
         utilidad_n = st.number_input("Utilidad Neta ($)", min_value=0.0, value=1000.0)
         capital_t = st.number_input("Capital Contable ($)", min_value=1.0, value=5000.0)
-        roe = (utilidad_n / capital_t) * 100[cite: 1]
+        roe = (utilidad_n / capital_t) * 100
         st.metric("ROE", f"{roe:.2f}%")
         st.info(generar_opinion(roe, "roe"))
     with col2:
@@ -185,8 +185,8 @@ def modulo_escenario_mixto():
         st.subheader("📊 Resultados de Equilibrio y Rentabilidad")
         
         if mc_calculado > 0:
-            pe_q = cf_total / mc_calculado[cite: 1]
-            pe_dinero = pe_q * pv_final[cite: 1]
+            pe_q = cf_total / mc_calculado
+            pe_dinero = pe_q * pv_final
             
             c1, c2, c3 = st.columns(3)
             c1.metric("PV Final", f"${pv_final:,.2f}")
@@ -200,11 +200,11 @@ def modulo_escenario_mixto():
             
             st.divider()
             
-            clientes_necesarios = (cf_total + utilidad_deseada) / mc_calculado[cite: 1]
+            clientes_necesarios = (cf_total + utilidad_deseada) / mc_calculado
             st.success(f"### 🎯 Objetivo para Meta: {int(clientes_necesarios + 1)} Alumnos")
             
             clientes_reales = st.slider("Simular Volumen de Ventas (Alumnos)", 0, int(clientes_necesarios * 1.5), 35)
-            rentabilidad_neta = (clientes_reales * mc_calculado) - cf_total[cite: 1]
+            rentabilidad_neta = (clientes_reales * mc_calculado) - cf_total
             
             st.metric("Rentabilidad Neta Proyectada", f"${rentabilidad_neta:,.2f}", 
                       delta=f"{rentabilidad_neta - utilidad_deseada:,.2f} vs Meta")
@@ -231,9 +231,9 @@ with st.sidebar:
         "Flujos de Efectivo", "Capital Contable"
     ])
     st.divider()
-    st.caption("Este sistema procesa datos de manera local. Confidencialidad protegida por la LFPDPPP.")[cite: 1]
-    st.caption("Cálculos basados en estándares internacionales y álgebra lineal.")[cite: 1]
-    st.caption("v1.0 - Desarrollado para Contabilidad Empresarial.")[cite: 1]
+    st.caption("Este sistema procesa datos de manera local. Confidencialidad protegida por la LFPDPPP.")
+    st.caption("Cálculos basados en estándares internacionales y álgebra lineal.")
+    st.caption("v1.0 - Desarrollado para Contabilidad Empresarial.")
 
 # NAVEGACIÓN
 if opcion == "Escenario Mixto": modulo_escenario_mixto()
