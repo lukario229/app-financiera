@@ -68,11 +68,10 @@ def generar_opinion(valor, tipo):
         return "🟡 **Retorno Moderado:** Se sugiere optimizar la inversión patrimonial."
 
 def mostrar_cabecera():
-    col_logo, col_titulo = st.columns([1, 12])
-    with col_titulo:
-        st.title("🛡️ SISTEMA DE INTELIGENCIA FINANCIERA")
-        st.subheader("Análisis Estratégico para la Toma de Decisiones")
-        st.caption("Proyecto de Innovación Digital - Universidad Autónoma de Nayarit")
+    # Se eliminan las columnas para alinear el título totalmente a la izquierda
+    st.title("🛡️ SISTEMA DE INTELIGENCIA FINANCIERA")
+    st.subheader("Análisis Estratégico para la Toma de Decisiones")
+    st.caption("Proyecto de Innovación Digital - Universidad Autónoma de Nayarit")
 
 # --- MÓDULOS DE ANÁLISIS ---
 
@@ -167,50 +166,53 @@ def modulo_escenario_mixto():
         mc_calculado = pv_final - cv_u
 
         st.divider()
-        utilidad_deseada = st.number_input("Utilidad Neta Objetivo ($)", min_value=0.0, value=30000.0)
+        utilidad_deseada = st.number_input("Utilidad Neta Objetivo ($)", min_value=0.0, value=30908.15)
 
-        # Guía manual con instrucciones agregadas
         with st.expander("📖 Guía de Cálculo Manual"):
             datos_manuales = {
-                "Concepto": ["PV Final", "Margen (MC)", "PE", "Ventas Meta"],
-                "Fórmula": ["Base+Plus", "PV-CV", "Fijos/MC", "(Fijos+Meta)/MC"],
+                "Concepto": ["PV Final", "CV.u", "Margen (MC)", "P.E. Q", "P.E. $"],
+                "Fórmula": ["Base+Plus", "Dato Entrada", "PV-CVU", "Fijos/MC", "PE Q * PV"],
                 "Resultado": [
                     f"**${pv_final}**",
+                    f"**${cv_u}**",
                     f"**${mc_calculado}**",
                     f"**{cf_total/mc_calculado if mc_calculado > 0 else 0:.2f}**",
-                    f"**{(cf_total+utilidad_deseada)/mc_calculado if mc_calculado > 0 else 0:.2f}**"
+                    f"**${(cf_total/mc_calculado)*pv_final if mc_calculado > 0 else 0:,.2f}**"
                 ]
             }
             st.table(datos_manuales)
             
-            # --- SECCIÓN DE INSTRUCCIONES ---
-            st.write("") # Espacio de separación
+            st.write("") 
             st.divider()
             st.markdown("### 📝 Glosario Rápido")
-            st.caption("Usa esta guía para entender tus resultados de forma sencilla:")
-            
             st.info("""
-            *   **PV Final:** Es tu precio real de venta (Base + cobros extras).
-            *   **Margen (MC):** Lo que te sobra de cada venta tras pagar sus costos directos.
-            *   **Punto de Equilibrio (PE):** ¿Cuántos clientes necesitas para no ganar ni perder?
-            *   **Ventas Meta:** Clientes necesarios para alcanzar la utilidad que escribiste arriba.
+            * **PV Final:** Es tu precio real de venta (Base + cobros extras).
+            * **CV.u:** Lo que te cuesta cada unidad o alumno.
+            * **Margen (MC):** Lo que sobra de cada venta para cubrir costos fijos.
+            * **P.E. Q:** ¿Cuántos clientes necesitas para no ganar ni perder?
+            * **P.E. $:** Dinero mínimo en ventas necesario para estar en equilibrio.
             """)
 
     with col_res:
         st.subheader("📊 Resultados Proyectados")
         m1, m2, m3 = st.columns(3)
         m1.metric("PV Final", f"${pv_final:,.2f}")
-        m2.metric("Margen (MC)", f"${mc_calculado:,.2f}")
+        m2.metric("CV.u", f"${cv_u:,.2f}")
+        m3.metric("Margen (MC)", f"${mc_calculado:,.2f}")
 
         if mc_calculado > 0:
             pe_q = cf_total / mc_calculado
-            m3.metric("P.E. (Clientes)", f"{int(pe_q + 1)}")
+            pe_dinero = pe_q * pv_final
+            
+            r1, r2 = st.columns(2)
+            r1.metric("P.E. Q (Alumnos)", f"{int(pe_q + 1)}")
+            r2.metric("P.E. $ (Ventas)", f"${pe_dinero:,.2f}")
 
             clientes_necesarios = (cf_total + utilidad_deseada) / mc_calculado
-            st.success(f"### 🎯 Objetivo: {int(clientes_necesarios + 1)} Clientes")
+            st.success(f"### 🎯 Objetivo Meta: {int(clientes_necesarios + 1)} Alumnos")
 
             st.divider()
-            clientes_reales = st.slider("Simular Volumen de Ventas (Clientes)", 0, int(clientes_necesarios * 1.5), int(pe_q + 5))
+            clientes_reales = st.slider("Simular Volumen de Ventas (Alumnos)", 0, int(clientes_necesarios * 1.5), int(pe_q + 5))
             utilidad_proyectada = (clientes_reales * mc_calculado) - cf_total
 
             st.metric("Utilidad Proyectada", f"${utilidad_proyectada:,.2f}", 
@@ -218,7 +220,7 @@ def modulo_escenario_mixto():
 
             fig = px.area(x=list(range(0, int(clientes_necesarios * 1.3))), 
                           y=[(x * mc_calculado) - cf_total for x in range(0, int(clientes_necesarios * 1.3))], 
-                          labels={'x': 'Clientes', 'y': 'Utilidad ($)'}, title="Curva de Rentabilidad")
+                          labels={'x': 'Alumnos', 'y': 'Utilidad ($)'}, title="Curva de Rentabilidad")
             fig.add_hline(y=0, line_dash="dash", line_color="red")
             fig.add_hline(y=utilidad_deseada, line_dash="dot", line_color="green")
             fig.update_layout(template="plotly_dark", paper_bgcolor='rgba(0,0,0,0)', plot_bgcolor='rgba(0,0,0,0)')
@@ -238,9 +240,9 @@ with st.sidebar:
         "Capital Contable", "Punto de Equilibrio", "Escenario Mixto"
     ])
     st.divider()
-    st.caption("Este sistema procesa datos de manera local. Recuerde que la confidencialidad de su información financiera es un derecho protegido por la Ley Federal de Protección de Datos Personales.")
-    st.caption("Cálculos basados en estándares internacionales de contabilidad y modelos matemáticos de álgebra lineal.")
-    st.caption("Versión del Sistema: v1.0 - Desarrollado para la materia Contabilidad Empresarial.")
+    st.caption("Este sistema procesa datos de manera local. La confidencialidad está protegida por la ley.")
+    st.caption("Cálculos basados en estándares internacionales y modelos de álgebra lineal.")
+    st.caption("v1.0 - Desarrollado para Contabilidad Empresarial.")
 
 # NAVEGACIÓN
 if opcion == "Balance General": modulo_balance()
