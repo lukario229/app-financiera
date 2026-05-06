@@ -20,11 +20,6 @@ st.markdown(f"""
         color: #ffffff !important;
     }}
 
-    .stAlert {{
-        background-color: transparent !important;
-        border: none !important;
-    }}
-
     .watermark-bg {{
         position: fixed;
         top: 50%;
@@ -57,15 +52,15 @@ st.markdown(f"""
 # --- FUNCIONES DE SOPORTE ---
 def generar_opinion(valor, tipo):
     if tipo == "liquidez":
-        if valor >= 1.5: return "🟢 **Situación Óptima:** Solvencia garantizada."
-        if valor >= 1.0: return "🟡 **Riesgo Moderado:** Vigilancia requerida."
-        return "🔴 **Alerta Crítica:** Insuficiencia de fondos inmediata."
+        if valor >= 1.5: return "🟢 **Situación Óptima:** Solvencia garantizada."[cite: 1]
+        if valor >= 1.0: return "🟡 **Riesgo Moderado:** Vigilancia requerida."[cite: 1]
+        return "🔴 **Alerta Crítica:** Insuficiencia de fondos inmediata."[cite: 1]
     if tipo == "margen":
-        if valor >= 20: return "🟢 **Alta Rentabilidad:** Generación eficiente de valor."
-        return "🔴 **Rentabilidad Baja:** Revisar estructura de costos."
+        if valor >= 20: return "🟢 **Alta Rentabilidad:** Generación eficiente de valor."[cite: 1]
+        return "🔴 **Rentabilidad Baja:** Revisar estructura de costos."[cite: 1]
     if tipo == "roe":
-        if valor >= 15: return "🟢 **Excelente Retorno:** Gran eficiencia en el uso del capital."
-        return "🟡 **Retorno Moderado:** Se sugiere optimizar la inversión patrimonial."
+        if valor >= 15: return "🟢 **Excelente Retorno:** Gran eficiencia en el uso del capital."[cite: 1]
+        return "🟡 **Retorno Moderado:** Se sugiere optimizar la inversión patrimonial."[cite: 1]
 
 def mostrar_cabecera():
     col_logo, col_titulo = st.columns([1, 6])
@@ -83,7 +78,7 @@ def modulo_balance():
         activo = st.number_input("Activo Circulante ($)", min_value=0.0, value=1500.0)
         pasivo = st.number_input("Pasivo Circulante ($)", min_value=0.0, value=1000.0)
         if pasivo > 0:
-            liq = activo / pasivo
+            liq = activo / pasivo[cite: 1]
             st.metric("Razón de Liquidez", f"{liq:.2f}")
             st.info(generar_opinion(liq, "liquidez"))
     with col2:
@@ -98,7 +93,7 @@ def modulo_resultados():
         ingresos = st.number_input("Ingresos Totales ($)", min_value=0.0, value=5000.0)
         utilidad = st.number_input("Utilidad Neta ($)", min_value=0.0, value=1000.0)
         if ingresos > 0:
-            margen = (utilidad / ingresos) * 100
+            margen = (utilidad / ingresos) * 100[cite: 1]
             st.metric("Margen Neto", f"{margen:.2f}%")
             st.info(generar_opinion(margen, "margen"))
     with col2:
@@ -112,7 +107,7 @@ def modulo_flujos():
     with col1:
         f_operativo = st.number_input("Flujo Actividades Operación ($)", value=3000.0)
         capex = st.number_input("Inversión (CAPEX) ($)", value=1200.0)
-        fcf = f_operativo - capex
+        fcf = f_operativo - capex[cite: 1]
         st.metric("Flujo Libre de Efectivo", f"${fcf:,.2f}")
     with col2:
         fig = go.Figure(go.Waterfall(
@@ -130,7 +125,7 @@ def modulo_capital():
     with col1:
         utilidad_n = st.number_input("Utilidad Neta ($)", min_value=0.0, value=1000.0)
         capital_t = st.number_input("Capital Contable ($)", min_value=1.0, value=5000.0)
-        roe = (utilidad_n / capital_t) * 100
+        roe = (utilidad_n / capital_t) * 100[cite: 1]
         st.metric("ROE", f"{roe:.2f}%")
         st.info(generar_opinion(roe, "roe"))
     with col2:
@@ -138,80 +133,91 @@ def modulo_capital():
         fig.update_layout(template="plotly_dark", paper_bgcolor='rgba(0,0,0,0)')
         st.plotly_chart(fig, use_container_width=True)
 
-def modulo_pe():
-    st.header("🎯 Punto de Equilibrio (Básico)")
-    col1, col2 = st.columns([1, 1])
-    with col1:
-        f = st.number_input("Costos Fijos ($)", min_value=0.0, value=2000.0)
-        p = st.number_input("Precio ($)", min_value=0.1, value=100.0)
-        v = st.number_input("Costo Variable ($)", min_value=0.0, value=60.0)
-        if p > v:
-            pe = f / (p - v)
-            st.metric("Unidades para Equilibrio", f"{int(pe + 1)}")
-        else:
-            st.error("El precio debe ser mayor al costo variable.")
-
 def modulo_escenario_mixto():
     st.header("🚀 SIMULADOR DE ESCENARIOS DINÁMICOS")
     
     col_inp, col_res = st.columns([1, 1.5])
 
     with col_inp:
-        st.subheader("⚙️ Parámetros")
-        pv_base = st.number_input("Precio de Venta Base ($)", min_value=0.0, value=000.0)
-        extra_premium = st.number_input("Ingreso Adicional / Plus ($)", min_value=0.0, value=00.0)
-        cv_u = st.number_input("Costo Variable Unitario ($)", min_value=0.0, value=00.0)
-        cf_total = st.number_input("Costos Fijos Totales ($)", min_value=0.0, value=00.0)
+        st.subheader("⚙️ Parámetros de Entrada")
+        pv_base = st.number_input("Precio de Venta Base ($)", min_value=0.0, value=1300.0, 
+                                  help="Valor estándar del servicio en el mercado.")
+        extra_premium = st.number_input("Ingreso Adicional / Plus ($)", min_value=0.0, value=70.0, 
+                                        help="Cobro extra por valor agregado (ej. Certificado Premium).")
+        cv_u = st.number_input("Costo Variable Unitario (CVU) ($)", min_value=0.0, value=200.0, 
+                               help="Costo que se genera por cada nuevo alumno atendido.")
+        cf_total = st.number_input("Costos Fijos Totales (C.F.) ($)", min_value=0.0, value=15000.0, 
+                                   help="Gastos obligatorios independientemente del número de alumnos.")
         
         pv_final = pv_base + extra_premium
         mc_calculado = pv_final - cv_u
         
         st.divider()
-        utilidad_deseada = st.number_input("Utilidad Neta Objetivo ($)", min_value=0.0, value=30000.0)
+        utilidad_deseada = st.number_input("Utilidad Neta Objetivo ($)", min_value=0.0, value=30908.15, 
+                                           help="Meta de ganancia limpia que se desea alcanzar.")
 
-        # Guía manual debajo del objetivo
         with st.expander("📖 Guía de Cálculo Manual"):
+            st.markdown("### Tabla de Operaciones")
             datos_manuales = {
-                "Concepto": ["PV Final", "Margen (MC)", "PE", "Ventas Meta"],
-                "Fórmula": ["Base+Plus", "PV-CV", "Fijos/MC", "(Fijos+Meta)/MC"],
+                "Concepto": ["PV Final", "Margen (MC)", "PE Q (Und)", "PE $ (Ventas)"],
+                "Fórmula": ["Base + Plus", "PV - CVU", "C.F. / MC", "PE Q * PV"],
                 "Resultado": [
                     f"**${pv_final}**",
                     f"**${mc_calculado}**",
-                    f"**{cf_total/mc_calculado:.2f}**",
-                    f"**{(cf_total+utilidad_deseada)/mc_calculado:.2f}**"
+                    f"**{cf_total/mc_calculado if mc_calculado > 0 else 0:.2f}**",
+                    f"**${(cf_total/mc_calculado)*pv_final if mc_calculado > 0 else 0:,.2f}**"
                 ]
             }
             st.table(datos_manuales)
-
-    with col_res:
-        st.subheader("📊 Resultados Proyectados")
-        m1, m2, m3 = st.columns(3)
-        m1.metric("PV Final", f"${pv_final:,.2f}")
-        m2.metric("Margen (MC)", f"${mc_calculado:,.2f}")
-        
-        if mc_calculado > 0:
-            pe_q = cf_total / mc_calculado
-            m3.metric("P.E. (Clientes)", f"{int(pe_q + 1)}")
-            
-            clientes_necesarios = (cf_total + utilidad_deseada) / mc_calculado
-            st.success(f"### 🎯 Objetivo: {int(clientes_necesarios + 1)} Clientes")
             
             st.divider()
-            clientes_reales = st.slider("Simular Volumen de Ventas (Clientes)", 0, int(clientes_necesarios * 1.5), int(pe_q + 5))
-            utilidad_proyectada = (clientes_reales * mc_calculado) - cf_total
+            st.markdown("### 💡 Glosario de Conceptos")
+            st.info("""
+            **1. Precio de Venta (PV):** Ingreso total percibido por cada unidad vendida.
+            **2. Costo Variable Unitario (CVU):** Gastos que fluctúan directamente con el volumen de ventas.
+            **3. Costos Fijos (C.F.):** Gastos que permanecen constantes.
+            **4. Margen de Contribución (M.C.):** Capital disponible para pagar los costos fijos.
+            **5. Punto de Equilibrio (P.E.):** El nivel donde la utilidad es exactamente cero.
+            **6. Rentabilidad Neta:** La ganancia final después de cubrir todos los costos.
+            """)
+
+    with col_res:
+        st.subheader("📊 Resultados de Equilibrio y Rentabilidad")
+        
+        if mc_calculado > 0:
+            pe_q = cf_total / mc_calculado[cite: 1]
+            pe_dinero = pe_q * pv_final[cite: 1]
             
-            st.metric("Utilidad Proyectada", f"${utilidad_proyectada:,.2f}", 
-                      delta=f"{utilidad_proyectada - utilidad_deseada:,.2f} vs Meta")
+            c1, c2, c3 = st.columns(3)
+            c1.metric("PV Final", f"${pv_final:,.2f}")
+            c2.metric("CVU", f"${cv_u:,.2f}")
+            c3.metric("Margen (MC)", f"${mc_calculado:,.2f}")
+            
+            c4, c5, c6 = st.columns(3)
+            c4.metric("Costos Fijos", f"${cf_total:,.2f}")
+            c5.metric("P.E. Q (Alumnos)", f"{int(pe_q + 1)}")
+            c6.metric("P.E. $ (Ventas)", f"${pe_dinero:,.2f}")
+            
+            st.divider()
+            
+            clientes_necesarios = (cf_total + utilidad_deseada) / mc_calculado[cite: 1]
+            st.success(f"### 🎯 Objetivo para Meta: {int(clientes_necesarios + 1)} Alumnos")
+            
+            clientes_reales = st.slider("Simular Volumen de Ventas (Alumnos)", 0, int(clientes_necesarios * 1.5), 35)
+            rentabilidad_neta = (clientes_reales * mc_calculado) - cf_total[cite: 1]
+            
+            st.metric("Rentabilidad Neta Proyectada", f"${rentabilidad_neta:,.2f}", 
+                      delta=f"{rentabilidad_neta - utilidad_deseada:,.2f} vs Meta")
 
             fig = px.area(x=list(range(0, int(clientes_necesarios * 1.3))), 
                           y=[(x * mc_calculado) - cf_total for x in range(0, int(clientes_necesarios * 1.3))], 
-                          labels={'x': 'Clientes', 'y': 'Utilidad ($)'}, title="Curva de Rentabilidad")
-            fig.add_hline(y=0, line_dash="dash", line_color="red")
-            fig.add_hline(y=utilidad_deseada, line_dash="dot", line_color="green")
+                          labels={'x': 'Alumnos', 'y': 'Utilidad ($)'}, title="Curva de Rentabilidad")
+            fig.add_hline(y=0, line_dash="dash", line_color="red", annotation_text="P. Equilibrio")
+            fig.add_hline(y=utilidad_deseada, line_dash="dot", line_color="green", annotation_text="Meta")
             fig.update_layout(template="plotly_dark", paper_bgcolor='rgba(0,0,0,0)', plot_bgcolor='rgba(0,0,0,0)')
             st.plotly_chart(fig, use_container_width=True)
         else:
-            st.error("⚠️ El Costo Variable supera al Precio. Revisa tus números.")
+            st.error("⚠️ El Margen de Contribución es nulo o negativo.")
 
 # --- ESTRUCTURA PRINCIPAL ---
 mostrar_cabecera()
@@ -219,24 +225,24 @@ st.divider()
 
 with st.sidebar:
     st.image("https://uacbi.uan.mx/wp-content/uploads/2022/10/ESCUDO-UAN-Azul-1024x1024.png", width=200)
-    st.title("Menú de Análisis")
+    st.title("Menú Principal")
     opcion = st.radio("Seleccione un Módulo:", [
-        "Balance General", "Estado de Resultados", "Flujos de Efectivo", 
-        "Capital Contable", "Punto de Equilibrio", "Escenario Mixto"
+        "Escenario Mixto", "Balance General", "Estado de Resultados", 
+        "Flujos de Efectivo", "Capital Contable"
     ])
     st.divider()
-    st.caption("Este sistema procesa datos de manera local. Recuerde que la confidencialidad de su información financiera es un derecho protegido por la Ley Federal de Protección de Datos Personales.")
-    st.caption("Cálculos basados en estándares internacionales de contabilidad y modelos matemáticos de álgebra lineal.")
-    st.caption("Versión del Sistema: v1.0 - Desarrollado para la materia Contabilidad Empresarial.")
+    st.caption("Este sistema procesa datos de manera local. Confidencialidad protegida por la LFPDPPP.")[cite: 1]
+    st.caption("Cálculos basados en estándares internacionales y álgebra lineal.")[cite: 1]
+    st.caption("v1.0 - Desarrollado para Contabilidad Empresarial.")[cite: 1]
 
 # NAVEGACIÓN
-if opcion == "Balance General": modulo_balance()
+if opcion == "Escenario Mixto": modulo_escenario_mixto()
+elif opcion == "Balance General": modulo_balance()
 elif opcion == "Estado de Resultados": modulo_resultados()
 elif opcion == "Flujos de Efectivo": modulo_flujos()
 elif opcion == "Capital Contable": modulo_capital()
-elif opcion == "Punto de Equilibrio": modulo_pe()
-elif opcion == "Escenario Mixto": modulo_escenario_mixto()
 
+# Pie de página
 st.markdown(f"""
     <div class="footer">
         <b>© {datetime.now().year} | Heliu Gahel Ciañez | Universidad Autónoma de Nayarit</b><br>
