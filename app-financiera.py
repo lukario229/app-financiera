@@ -158,10 +158,10 @@ def modulo_escenario_mixto():
 
     with col_inp:
         st.subheader("⚙️ Parámetros")
-        pv_base = st.number_input("Precio de Venta Base ($)", min_value=0.0, value=1300.0)
-        extra_premium = st.number_input("Ingreso Adicional / Plus ($)", min_value=0.0, value=70.0)
-        cv_u = st.number_input("Costo Variable Unitario ($)", min_value=0.0, value=200.0)
-        cf_total = st.number_input("Costos Fijos Totales ($)", min_value=0.0, value=15000.0)
+        pv_base = st.number_input("Precio de Venta Base ($)", min_value=0.0, value=000.0)
+        extra_premium = st.number_input("Ingreso Adicional / Plus ($)", min_value=0.0, value=00.0)
+        cv_u = st.number_input("Costo Variable Unitario ($)", min_value=0.0, value=00.0)
+        cf_total = st.number_input("Costos Fijos Totales ($)", min_value=0.0, value=00.0)
         
         pv_final = pv_base + extra_premium
         mc_calculado = pv_final - cv_u
